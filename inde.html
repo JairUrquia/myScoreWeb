@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiniela App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .scrollbar-none::-webkit-scrollbar { display: none; }
+        .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+        .predicted-card { border-color: #2eff2e !important; background: linear-gradient(180deg, rgba(46,255,46,0.10), rgba(18,22,19,1)) !important; }
+        .predicted-card .prediction-pill { background: rgba(46,255,46,0.16); color: #b7ffb7; border-color: rgba(46,255,46,0.35); }
+    </style>
+</head>
+<body class="bg-[#0b0f0c] text-gray-200 font-sans min-h-screen flex justify-center items-stretch">
+
+    <!-- CONTENEDOR ENFOQUE MÓVIL EXACTO -->
+    <div class="w-full max-w-md bg-[#121613] min-h-screen flex flex-col relative pb-24 border-x border-gray-800 shadow-2xl">
+        
+        <!-- ------------------- PANTALLA 1: INICIO ------------------- -->
+        <div id="screen-inicio" class="screen-view p-4 space-y-6">
+            <!-- Header Perfil Personal -->
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-tr from-green-500 to-emerald-700 rounded-full flex items-center justify-center font-bold text-white shadow-md">RU</div>
+                    <div>
+                        <span class="text-xs text-gray-400 block">Bienvenido de vuelta</span>
+                        <h2 class="text-base font-bold text-white tracking-wide">Christopher Jack</h2>
+                    </div>
+                </div>
+                <button class="text-gray-400 hover:text-white p-2 bg-gray-800/50 rounded-full"><i data-lucide="search" class="w-5 h-5"></i></button>
+            </div>
+
+            <!-- Selector de Días con Botón de Vista de Calendario Completo -->
+            <div class="flex gap-2 items-center overflow-x-auto pb-2 scrollbar-none">
+                <button onclick="selectDay(11)" id="day-11" class="bg-[#2eff2e] text-black font-bold px-3 py-2 rounded-xl text-center min-w-[70px] flex flex-col items-center gap-1 shadow-lg transition-all">
+                    <span class="text-[10px] uppercase font-semibold opacity-80">Jue</span>
+                    <span class="text-base font-black">11</span>
+                    <div class="flex gap-0.5 mt-0.5">
+                        <img src="https://flagcdn.com/w20/mx.png" class="w-3.5 h-2.5 object-cover rounded-sm">
+                        <img src="https://flagcdn.com/w20/kr.png" class="w-3.5 h-2.5 object-cover rounded-sm">
+                    </div>
+                </button>
+                <button onclick="selectDay(12)" id="day-12" class="bg-[#1a1f1b] hover:bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-center min-w-[70px] flex flex-col items-center gap-1 border border-gray-800 transition-all">
+                    <span class="text-[10px] uppercase font-medium">Vie</span>
+                    <span class="text-base font-bold text-white">12</span>
+                    <div class="flex gap-0.5 mt-0.5">
+                        <img src="https://flagcdn.com/w20/ca.png" class="w-3.5 h-2.5 object-cover rounded-sm">
+                        <img src="https://flagcdn.com/w20/qa.png" class="w-3.5 h-2.5 object-cover rounded-sm">
+                    </div>
+                </button>
+                <button onclick="selectDay(13)" id="day-13" class="bg-[#1a1f1b] hover:bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-center min-w-[70px] flex flex-col items-center gap-1 border border-gray-800 transition-all">
+                    <span class="text-[10px] uppercase font-medium">Sáb</span>
+                    <span class="text-base font-bold text-white">13</span>
+                    <div class="flex gap-0.5 mt-0.5">
+                        <img src="https://flagcdn.com/w20/br.png" class="w-3.5 h-2.5 object-cover rounded-sm">
+                        <img src="https://flagcdn.com/w20/ht.png" class="w-3.5 h-2.5 object-cover rounded-sm">
+                    </div>
+                </button>
+                
+                <!-- BOTÓN CALENDARIO (Abre la cuadrícula mensual completa) -->
+                <button onclick="openModalCalendario()" class="bg-[#161b17] hover:bg-[#1f2620] text-[#2eff2e] p-3 rounded-xl border border-gray-800 min-w-[52px] h-[68px] flex items-center justify-center shadow-md transition-all" title="Ver Vista Calendario">
+                    <i data-lucide="calendar-days" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <!-- Carrusel: En Vivo / Próximos -->
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-base font-bold text-white tracking-tight flex items-center gap-1">En Vivo / Próximos</h3>
+                    <button onclick="changeTab('calendario')" class="text-xs text-[#2eff2e] font-semibold">Ver todo</button>
+                </div>
+                
+                <!-- Tarjeta Principal Interactiva (Partido Argentina vs Polonia) -->
+                <div class="bg-[#161b17] p-4 rounded-2xl border border-gray-800/80 shadow-md space-y-4">
+                    <div class="flex justify-between items-center text-xs text-gray-400">
+                        <span class="bg-gray-800/80 px-2.5 py-1 rounded-full text-white font-medium text-[11px]">Upcoming - Group A</span>
+                        <span class="text-[#2eff2e] font-semibold">8:00 p. m. (UTC-6)</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2 px-1">
+                        <div class="flex flex-col items-center text-center w-1/3">
+                            <img src="https://flagcdn.com/w80/mx.png" class="w-14 h-9 object-cover rounded-lg shadow-md mb-2">
+                            <span class="font-bold text-sm text-white">Mexico</span>
+                        </div>
+                        <div class="text-center w-1/3">
+                            <span class="text-gray-500 font-black text-xl tracking-wider">VS</span>
+                            <p class="text-[10px] text-gray-500 mt-1 truncate">Estadio Azteca</p>
+                        </div>
+                        <div class="flex flex-col items-center text-center w-1/3">
+                            <img src="https://flagcdn.com/w80/za.png" class="w-14 h-9 object-cover rounded-lg shadow-md mb-2">
+                            <span class="font-bold text-sm text-white">South Africa</span>
+                        </div>
+                    </div>
+                    <div class="bg-[#0f1310] p-2 rounded-xl border border-gray-800 flex flex-col gap-2" data-match-id="A1">
+                        <span class="text-xs text-gray-400 pl-1">Tu Pronóstico:</span>
+                        <div class="flex flex-wrap gap-1.5" data-match-id="A1" id="forecast-A1">
+                            <button onclick="savePrediction('A1', 'Mexico')" data-pick="Mexico" id="btn-A1-Mexico" class="px-2 py-1 text-[10px] font-medium text-gray-200 rounded-md border border-gray-800 bg-gray-900 transition-all flex items-center gap-1"><img src="https://flagcdn.com/w40/mx.png" class="w-4 h-3 rounded-sm">Mexico</button>
+                            <button onclick="savePrediction('A1', 'EMP')" data-pick="EMP" id="btn-A1-EMP" class="px-2 py-1 text-[10px] font-medium text-gray-200 rounded-md border border-gray-800 bg-gray-900 transition-all">Empate</button>
+                            <button onclick="savePrediction('A1', 'South Africa')" data-pick="South Africa" id="btn-A1-SouthAfrica" class="px-2 py-1 text-[10px] font-medium text-gray-200 rounded-md border border-gray-800 bg-gray-900 transition-all flex items-center gap-1"><img src="https://flagcdn.com/w40/za.png" class="w-4 h-3 rounded-sm">South Africa</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Partidos de Hoy -->
+            <div class="space-y-3">
+                <div class="flex items-center justify-between gap-2">
+                    <h3 class="text-base font-bold text-white tracking-tight">Partidos de Hoy</h3>
+                    <span id="selected-day-summary" class="text-[11px] text-[#2eff2e] font-semibold">Día seleccionado: Jueves 4</span>
+                </div>
+                <div id="today-matches" class="space-y-3"></div>
+            </div>
+        </div>
+
+        <!-- ------------------- MODAL: CALENDARIO MENSUAL CON BANDERAS ------------------- -->
+        <div id="modal-calendario" class="hidden fixed inset-0 bg-black/80 flex justify-center items-center z-50 p-4">
+            <div class="bg-[#121613] border border-gray-800 w-full max-w-sm rounded-2xl p-4 space-y-4 shadow-2xl">
+                <div class="flex justify-between items-center border-b border-gray-800 pb-2">
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <i data-lucide="calendar" class="text-[#2eff2e] w-5 h-5"></i> Junio 2026
+                    </h3>
+                    <button onclick="closeModalCalendario()" class="text-gray-400 hover:text-white p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+                
+                <!-- Cuadrícula del Calendario Semanal/Mensual -->
+                <div id="calendar-grid" class="grid grid-cols-7 gap-1.5 text-center text-xs"></div>
+            </div>
+        </div>
+
+        <!-- ------------------- PANTALLA 2: CALENDARIO COMPLETO ------------------- -->
+        <div id="screen-calendario" class="screen-view p-4 space-y-4 hidden">
+            <h2 class="text-xl font-bold text-white tracking-wide">Calendario Completo</h2>
+            <p class="text-xs text-gray-400 -mt-2">Todos los encuentros ajustados al horario local de El Salvador.</p>
+            
+            <div id="calendar-fixtures" class="space-y-2.5"></div>
+        </div>
+
+        <!-- ------------------- PANTALLA 3: GRUPOS DEL MUNDIAL ------------------- -->
+        <div id="screen-grupos" class="screen-view p-4 space-y-4 hidden">
+            <h2 class="text-xl font-bold text-white tracking-wide">Grupos del Mundial</h2>
+            <p class="text-xs text-gray-400 -mt-1">Toca un grupo para ver tus pronósticos relacionados.</p>
+            <div id="groups-grid" class="space-y-3"></div>
+            <div id="group-predictions-panel" class="bg-[#161b17] p-4 rounded-xl border border-gray-800 text-sm text-gray-300"></div>
+        </div>
+
+        <!-- ------------------- PANTALLA 4: BALANCE GENERAL Y METAS ------------------- -->
+        <div id="screen-apuestas" class="screen-view p-4 space-y-5 hidden">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-bold text-white tracking-wide">Mis Apuestas y Metas</h2>
+                <button onclick="openModalMeta()" class="p-1.5 bg-gray-800/80 rounded-lg text-[#2eff2e]"><i data-lucide="plus" class="w-5 h-5"></i></button>
+            </div>
+
+            <!-- Dashboard de Balance Global -->
+            <div class="bg-[#161b17] p-4 rounded-2xl border border-gray-800/80 shadow-lg space-y-4">
+                <div>
+                    <span class="text-[10px] text-gray-400 font-semibold uppercase tracking-wider block">Balance General</span>
+                    <h3 class="text-3xl font-black text-white" id="main-balance-text">$0.00</h3>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 pt-1">
+                    <div>
+                        <span class="text-xs text-gray-500 block">Total Invertido</span>
+                        <span class="text-sm font-bold text-gray-300" id="main-invested-text">$0.00</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-500 block">Ganancia / Pérdida</span>
+                        <span class="text-sm font-bold text-gray-300" id="main-profit-text">$0.00</span>
+                    </div>
+                </div>
+
+                <div class="space-y-1 pt-2 border-t border-gray-800">
+                    <div class="flex justify-between text-xs">
+                        <span class="text-gray-400">Progreso de Metas</span>
+                        <span class="text-[#2eff2e] font-bold" id="main-progress-label">0% de $0</span>
+                    </div>
+                    <div class="w-full bg-[#0f1310] h-2 rounded-full overflow-hidden border border-gray-800">
+                        <div id="main-progress-bar" class="bg-[#2eff2e] h-2 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Listado de Metas Individuales Recargables -->
+            <div class="space-y-3">
+                <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider block">Mis Metas Individuales</span>
+                <div id="metas-list-container" class="space-y-3"></div>
+            </div>
+        </div>
+
+        <!-- ------------------- MENÚ DE NAVEGACIÓN INFERIOR ------------------- -->
+        <nav class="absolute bottom-0 inset-x-0 bg-[#0f1310] border-t border-gray-800/80 px-4 py-2.5 flex justify-between items-center z-40">
+            <button onclick="changeTab('inicio')" id="nav-inicio" class="nav-btn flex flex-col items-center gap-1 flex-1 text-[#2eff2e]">
+                <i data-lucide="home" class="w-5 h-5"></i><span class="text-[10px] font-bold">Inicio</span>
+            </button>
+            <button onclick="changeTab('calendario')" id="nav-calendario" class="nav-btn flex flex-col items-center gap-1 flex-1 text-gray-500">
+                <i data-lucide="calendar" class="w-5 h-5"></i><span class="text-[10px] font-medium">Calendario</span>
+            </button>
+            <button onclick="changeTab('grupos')" id="nav-grupos" class="nav-btn flex flex-col items-center gap-1 flex-1 text-gray-500">
+                <i data-lucide="users" class="w-5 h-5"></i><span class="text-[10px] font-medium">Grupos</span>
+            </button>
+            <button onclick="changeTab('apuestas')" id="nav-apuestas" class="nav-btn flex flex-col items-center gap-1 flex-1 text-gray-500">
+                <i data-lucide="wallet" class="w-5 h-5"></i><span class="text-[10px] font-medium">Apuestas</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- ------------------- MODAL: AGREGAR/EDITAR APUESTA O META ------------------- -->
+    <div id="modal-meta" class="hidden fixed inset-0 bg-black/80 flex justify-center items-center z-50 p-4">
+        <div class="bg-[#121613] border border-gray-800 w-full max-w-sm rounded-2xl p-4 space-y-4 shadow-2xl">
+            <h3 class="text-base font-bold text-white">Nueva Meta / Registro de Apuesta</h3>
+            <div class="space-y-3 text-sm">
+                <div>
+                    <label class="text-xs text-gray-400 block mb-1">Nombre de la Meta</label>
+                    <input id="input-meta-name" type="text" placeholder="Ej: Mundial General" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-[#2eff2e]">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs text-gray-400 block mb-1">Monto Invertido ($)</label>
+                        <input id="input-meta-invested" type="number" placeholder="150" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-[#2eff2e]">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-400 block mb-1">Monto Ganado/Perdido ($)</label>
+                        <input id="input-meta-profit" type="number" placeholder="+75 o -20" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-[#2eff2e]">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs text-gray-400 block mb-1">Meta Financiera Objetivo ($)</label>
+                    <input id="input-meta-target" type="number" placeholder="500" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-[#2eff2e]">
+                </div>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button onclick="closeModalMeta()" class="flex-1 bg-gray-800 text-white py-2 rounded-xl text-xs font-semibold">Cancelar</button>
+                <button onclick="saveMetaFinance()" class="flex-1 bg-[#2eff2e] text-black py-2 rounded-xl text-xs font-bold">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGICA SCRIPT DEL APLICATIVO -->
+    <script>
+        // Data Base inicial por defecto (Se guardará y leerá desde LocalStorage)
+        let appData = {
+            predictions: {},
+            metas: [
+                { id: 1, name: 'Mundial 2026 General', invested: 150, profit: 75, target: 500 },
+                { id: 2, name: 'Apuesta Grupo F (Muerte)', invested: 50, profit: -20, target: 200 }
+            ]
+        };
+
+        // Cargar Datos del Almacenamiento Local del Navegador
+        if (localStorage.getItem('quiniela_storage_v2')) {
+            appData = JSON.parse(localStorage.getItem('quiniela_storage_v2'));
+        }
+
+        let selectedDay = 11;
+        let selectedGroupCode = 'A';
+
+        const realGroups = [
+            { code: 'A', teams: ['Mexico', 'South Africa', 'South Korea', 'Czech Republic'] },
+            { code: 'B', teams: ['Canada', 'Bosnia and Herzegovina', 'Qatar', 'Switzerland'] },
+            { code: 'C', teams: ['Brazil', 'Morocco', 'Haiti', 'Scotland'] },
+            { code: 'D', teams: ['United States', 'Paraguay', 'Australia', 'Turkey'] },
+            { code: 'E', teams: ['Germany', 'Curaçao', 'Ivory Coast', 'Ecuador'] },
+            { code: 'F', teams: ['Netherlands', 'Japan', 'Sweden', 'Tunisia'] },
+            { code: 'G', teams: ['Belgium', 'Egypt', 'Iran', 'New Zealand'] },
+            { code: 'H', teams: ['Spain', 'Cape Verde', 'Saudi Arabia', 'Uruguay'] },
+            { code: 'I', teams: ['France', 'Senegal', 'Iraq', 'Norway'] },
+            { code: 'J', teams: ['Argentina', 'Algeria', 'Austria', 'Jordan'] },
+            { code: 'K', teams: ['Portugal', 'DR Congo', 'Uzbekistan', 'Colombia'] },
+            { code: 'L', teams: ['England', 'Croatia', 'Ghana', 'Panama'] },
+        ];
+
+        const flagMap = {
+            Mexico: 'mx', 'South Africa': 'za', 'South Korea': 'kr', 'Czech Republic': 'cz', Canada: 'ca', 'Bosnia & Herzegovina': 'ba', Qatar: 'qa', Switzerland: 'ch', Brazil: 'br', Morocco: 'ma', Haiti: 'ht', Scotland: 'gb-sct', 'USA': 'us', 'United States': 'us', Paraguay: 'py', Australia: 'au', Turkey: 'tr', Germany: 'de', Curaçao: 'cw', 'Ivory Coast': 'ci', Ecuador: 'ec', Netherlands: 'nl', Japan: 'jp', Sweden: 'se', Tunisia: 'tn', Belgium: 'be', Egypt: 'eg', Iran: 'ir', 'New Zealand': 'nz', Spain: 'es', 'Cape Verde': 'cv', 'Saudi Arabia': 'sa', Uruguay: 'uy', France: 'fr', Senegal: 'sn', Iraq: 'iq', Norway: 'no', Argentina: 'ar', Algeria: 'dz', Austria: 'at', Jordan: 'jo', Portugal: 'pt', 'DR Congo': 'cd', Uzbekistan: 'uz', Colombia: 'co', England: 'gb-eng', Croatia: 'hr', Ghana: 'gh', Panama: 'pa'
+        };
+
+        function normalizeTeamName(team) {
+            return team === 'USA' ? 'United States' : team;
+        }
+
+        function getFlagCode(team) {
+            const name = normalizeTeamName(team);
+            return flagMap[name] || 'un';
+        }
+
+        let realFixtures = [];
+        const daySchedule = {};
+
+        function buildFixtures(matches) {
+            realFixtures = matches
+                .filter(match => match.group && match.team1 && match.team2)
+                .map((match, index) => {
+                    const home = normalizeTeamName(match.team1);
+                    const away = normalizeTeamName(match.team2);
+                    const day = parseInt(match.date.slice(8, 10), 10);
+                    return {
+                        id: `fixture-${index + 1}`,
+                        group: match.group,
+                        day,
+                        dateLabel: `${String(day).padStart(2, '0')} ${['Jan','Feb','Mar','Apr','May','Jun','Jul'][new Date(2026, 5, day).getMonth()]}`,
+                        home,
+                        away,
+                        homeFlag: `https://flagcdn.com/w40/${getFlagCode(home)}.png`,
+                        awayFlag: `https://flagcdn.com/w40/${getFlagCode(away)}.png`,
+                        time: match.time,
+                        venue: match.ground || 'TBD'
+                    };
+                });
+
+            Object.keys(daySchedule).forEach(key => delete daySchedule[key]);
+            realFixtures.forEach(match => {
+                if (!daySchedule[match.day]) daySchedule[match.day] = [];
+                daySchedule[match.day].push(match);
+            });
+        }
+
+        async function loadFixtures() {
+            try {
+                const response = await fetch('worldcup.json');
+                const data = await response.json();
+                buildFixtures(data.matches || []);
+                renderCalendarScreen();
+                renderCalendarGrid();
+                renderDayMatches(selectedDay || 11);
+                showGroupPredictions(selectedGroupCode || 'A');
+            } catch (error) {
+                console.error('No se pudo cargar worldcup.json', error);
+            }
+        }
+
+        // Inicialización General
+        document.addEventListener("DOMContentLoaded", async () => {
+            lucide.createIcons();
+            await loadFixtures();
+            renderGroupsScreen();
+            renderAllSavedPredictions();
+            updateFinanceDashboard();
+            selectDay(11);
+            renderDayMatches(11);
+        });
+
+        // 1. CONTROL DE PRONÓSTICOS SELECTIVOS
+        function normalizePrediction(matchId, pick) {
+            const match = realFixtures.find(item => item.id === matchId);
+            if (!match) return pick;
+            const homeCode = match.home.slice(0, 3).toUpperCase();
+            const awayCode = match.away.slice(0, 3).toUpperCase();
+            if (pick === homeCode || pick === match.home) return match.home;
+            if (pick === awayCode || pick === match.away) return match.away;
+            return pick;
+        }
+
+        function savePrediction(matchId, pick) {
+            const normalizedPick = normalizePrediction(matchId, pick);
+            appData.predictions[matchId] = normalizedPick;
+            localStorage.setItem('quiniela_storage_v2', JSON.stringify(appData));
+            renderMatchUIOptions(matchId, normalizedPick);
+            renderDayMatches(selectedDay);
+            renderCalendarScreen();
+            showGroupPredictions(selectedGroupCode);
+            renderGroupsScreen();
+        }
+
+        function renderMatchUIOptions(matchId, selectedPick) {
+            const containers = document.querySelectorAll(`[data-match-id="${matchId}"]`);
+            if (!containers.length) return;
+
+            containers.forEach(container => {
+                const buttons = container.querySelectorAll('button');
+                buttons.forEach(btn => {
+                    btn.className = "px-2 py-1 text-[10px] font-medium text-gray-200 rounded-md border border-gray-800 bg-gray-900 transition-all flex items-center gap-1";
+                });
+
+                const activeBtn = Array.from(buttons).find(btn => btn.dataset.pick === selectedPick);
+                if (activeBtn) {
+                    activeBtn.className = "px-2 py-1 text-[10px] font-bold rounded-md bg-[#2eff2e] text-black border border-[#2eff2e] transition-all shadow-md flex items-center gap-1";
+                }
+            });
+        }
+
+        function renderAllSavedPredictions() {
+            Object.keys(appData.predictions).forEach(matchId => {
+                renderMatchUIOptions(matchId, appData.predictions[matchId]);
+            });
+        }
+
+        function getPredictionLabel(matchId) {
+            const pick = normalizePrediction(matchId, appData.predictions[matchId]);
+            if (!pick) return 'Sin pronóstico';
+            if (pick === 'EMP') return 'Empate';
+            return pick;
+        }
+
+        // 2. MODALES DEL CALENDARIO MENSUAL
+        function openModalCalendario() { document.getElementById('modal-calendario').classList.remove('hidden'); }
+        function closeModalCalendario() { document.getElementById('modal-calendario').classList.add('hidden'); }
+        
+        function getDayLabel(dayNumber) {
+            const labels = { 11: 'Jueves 11 de Junio', 12: 'Viernes 12 de Junio', 13: 'Sábado 13 de Junio' };
+            return labels[dayNumber] || `Día ${dayNumber}`;
+        }
+
+        function renderDayMatches(dayNumber) {
+            selectedDay = dayNumber;
+            const container = document.getElementById('today-matches');
+            if (!container) return;
+
+            const matches = daySchedule[dayNumber] || [];
+            document.getElementById('selected-day-summary').textContent = `Día seleccionado: ${getDayLabel(dayNumber)}`;
+
+            container.innerHTML = matches.map(match => {
+                const pick = appData.predictions[match.id];
+                const predicted = pick ? 'predicted-card' : '';
+                const predictionLabel = pick ? `Pronosticado: ${pick}` : 'Sin pronóstico';
+                return `
+                    <article class="bg-[#161b17] p-3 rounded-xl border border-gray-800 space-y-3 ${predicted} shadow-lg">
+                        <div class="flex justify-between items-start gap-2 text-[11px] text-gray-400">
+                            <span>${match.group}</span>
+                            <span class="prediction-pill text-[10px] font-semibold px-2 py-1 rounded-full border">${predictionLabel}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm px-2 gap-2">
+                            <div class="flex items-center gap-2 w-[42%]">
+                                <img src="${match.homeFlag}" class="w-8 h-5 object-cover rounded-sm border border-gray-700">
+                                <span class="font-semibold text-white text-[12px] leading-tight">${match.home}</span>
+                            </div>
+                            <span class="text-base font-black text-white w-[16%] text-center">VS</span>
+                            <div class="flex items-center gap-2 w-[42%] justify-end">
+                                <span class="font-semibold text-white text-[12px] text-right leading-tight">${match.away}</span>
+                                <img src="${match.awayFlag}" class="w-8 h-5 object-cover rounded-sm border border-gray-700">
+                            </div>
+                        </div>
+                        <div class="text-[10px] text-gray-400">${match.dateLabel} • ${match.venue} • ${match.time}</div>
+                        <div class="bg-[#0f1310] p-2 rounded-xl border border-gray-800 flex flex-col gap-2">
+                            <span class="text-xs text-gray-400 pl-1">Tu Pronóstico:</span>
+                            <div class="flex flex-wrap gap-1.5" data-match-id="${match.id}">
+                                <button onclick="savePrediction('${match.id}', '${match.home}')" data-pick="${match.home}" id="btn-${match.id}-${match.home.replace(/\s+/g, '')}" class="px-2 py-1 text-[10px] font-medium text-gray-200 rounded-md border border-gray-800 bg-gray-900 transition-all flex items-center gap-1"> <img src="${match.homeFlag}" class="w-4 h-3 rounded-sm"> ${match.home}</button>
+                                <button onclick="savePrediction('${match.id}', 'EMP')" data-pick="EMP" id="btn-${match.id}-EMP" class="px-2 py-1 text-[10px] font-medium text-gray-200 rounded-md border border-gray-800 bg-gray-900 transition-all">Empate</button>
+                                <button onclick="savePrediction('${match.id}', '${match.away}')" data-pick="${match.away}" id="btn-${match.id}-${match.away.replace(/\s+/g, '')}" class="px-2 py-1 text-[10px] font-medium text-gray-200 rounded-md border border-gray-800 bg-gray-900 transition-all flex items-center gap-1"> <img src="${match.awayFlag}" class="w-4 h-3 rounded-sm"> ${match.away}</button>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+
+            renderAllSavedPredictions();
+            lucide.createIcons();
+        }
+
+        function renderCalendarGrid() {
+            const grid = document.getElementById('calendar-grid');
+            if (!grid) return;
+            const firstDay = new Date(2026, 5, 1).getDay();
+            const daysInMonth = new Date(2026, 6, 0).getDate();
+            const cells = [];
+            const weekdayHeaders = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+            weekdayHeaders.forEach(label => cells.push(`<div class="text-gray-500 font-bold py-1">${label}</div>`));
+
+            for (let i = 0; i < firstDay; i++) cells.push('<div class="p-2 bg-gray-900/20 rounded text-gray-700"> </div>');
+            for (let day = 1; day <= daysInMonth; day++) {
+                const matchesForDay = realFixtures.filter(m => m.day === day);
+                const isMatchDay = matchesForDay.length > 0;
+                const isSelected = day === selectedDay;
+                cells.push(`
+                    <button type="button" onclick="selectDayFromModal(${day})" class="p-1 rounded border ${isSelected ? 'border-[#2eff2e] bg-[#161b17] shadow-lg' : 'border-gray-800 bg-[#161b17]'} min-h-[58px] flex flex-col items-center justify-between text-xs transition-all hover:bg-[#1f2620]">
+                        <span class="${isSelected ? 'font-bold text-[#2eff2e]' : 'text-white'}">${day}</span>
+                        ${isMatchDay ? `<div class="flex gap-0.5">${matchesForDay.slice(0, 2).map(m => `<img src="${m.homeFlag}" class="w-3.5 h-2.5 rounded-sm border border-gray-700" title="${m.home} vs ${m.away}">`).join('')}</div>` : '<span class="text-[9px] text-gray-600">•</span>'}
+                    </button>
+                `);
+            }
+            grid.innerHTML = cells.join('');
+        }
+
+        function renderGroupsScreen() {
+            const groupsGrid = document.getElementById('groups-grid');
+            if (!groupsGrid) return;
+
+            groupsGrid.innerHTML = realGroups.map(group => `
+                <button type="button" onclick="selectedGroupCode='${group.code}'; showGroupPredictions('${group.code}')" class="w-full text-left bg-[#161b17] rounded-xl border border-gray-800 p-4 hover:border-[#2eff2e] transition-all">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[#2eff2e] text-xs uppercase font-bold">Grupo ${group.code}</span>
+                        <span class="text-[10px] text-gray-400">Click para ver tus pronósticos</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-sm text-white">
+                        ${group.teams.map(team => `<span class="text-gray-200">• ${team}</span>`).join('')}
+                    </div>
+                </button>
+            `).join('');
+
+            const activeCode = selectedGroupCode || 'A';
+            showGroupPredictions(activeCode);
+        }
+
+        function showGroupPredictions(code) {
+            selectedGroupCode = code;
+            const panel = document.getElementById('group-predictions-panel');
+            if (!panel) return;
+            const normalizedCode = code.toUpperCase();
+            const matches = realFixtures.filter(m => {
+                const label = (m.group || '').toLowerCase().replace(/^grupo\s+/, 'group ');
+                return label === `group ${normalizedCode.toLowerCase()}`;
+            });
+            const predicted = matches.filter(m => appData.predictions[m.id]);
+            if (!predicted.length) {
+                panel.innerHTML = `<p class="text-gray-400">Aún no tienes pronósticos para el Grupo ${code}.</p>`;
+                return;
+            }
+            panel.innerHTML = `
+                <h3 class="text-[#2eff2e] font-bold text-xs uppercase tracking-wider mb-3">Pronósticos del Grupo ${code}</h3>
+                <div class="space-y-2">${predicted.map(m => `
+                    <article class="bg-[#0f1310] border border-gray-800 rounded-xl p-3 space-y-2">
+                        <div class="flex items-center justify-between gap-2 text-[10px] text-gray-400">
+                            <span>${m.dateLabel} • ${m.venue}</span>
+                            <span class="text-[#2eff2e] font-semibold">${getPredictionLabel(m.id)}</span>
+                        </div>
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <img src="${m.homeFlag}" class="w-8 h-5 rounded-sm border border-gray-700">
+                                <span class="text-sm text-white font-semibold truncate">${m.home}</span>
+                            </div>
+                            <span class="text-xs text-gray-400">VS</span>
+                            <div class="flex items-center gap-2 min-w-0 justify-end">
+                                <span class="text-sm text-white font-semibold truncate">${m.away}</span>
+                                <img src="${m.awayFlag}" class="w-8 h-5 rounded-sm border border-gray-700">
+                            </div>
+                        </div>
+                    </article>
+                `).join('')}</div>
+            `;
+        }
+
+        function selectDay(dayNumber) {
+            selectedDay = dayNumber;
+            [11,12,13].forEach(d => {
+                const el = document.getElementById(`day-${d}`);
+                if (el) {
+                    el.className = "bg-[#1a1f1b] hover:bg-gray-800 text-gray-400 px-3 py-2 rounded-xl text-center min-w-[65px] flex flex-col items-center gap-1 border border-gray-800 transition-all";
+                    const span = el.querySelector('span:nth-child(2)');
+                    if (span) span.className = "text-base font-bold text-white";
+                }
+
+                const modalCell = document.querySelector(`#modal-calendario [onclick="selectDayFromModal(${d})"]`);
+                if (modalCell) {
+                    modalCell.className = 'p-1 bg-[#161b17] border border-gray-800 rounded cursor-pointer flex flex-col items-center justify-between min-h-[48px] transition-all';
+                    const modalSpan = modalCell.querySelector('span');
+                    if (modalSpan) modalSpan.className = 'text-white';
+                }
+            });
+
+            const current = document.getElementById(`day-${dayNumber}`);
+            if (current) {
+                current.className = "bg-[#2eff2e] text-black font-bold px-3 py-2 rounded-xl text-center min-w-[65px] flex flex-col items-center gap-1 shadow-lg transition-all";
+                const span = current.querySelector('span:nth-child(2)');
+                if (span) span.className = "text-base font-black";
+            }
+
+            const modalCurrent = document.querySelector(`#modal-calendario [onclick="selectDayFromModal(${dayNumber})"]`);
+            if (modalCurrent) {
+                modalCurrent.className = 'p-1 bg-[#161b17] border border-[#2eff2e] rounded cursor-pointer flex flex-col items-center justify-between min-h-[48px] transition-all shadow-lg';
+                const modalSpan = modalCurrent.querySelector('span');
+                if (modalSpan) modalSpan.className = 'font-bold text-[#2eff2e]';
+            }
+
+            renderDayMatches(dayNumber);
+            renderCalendarGrid();
+        }
+
+        function selectDayFromModal(dayNumber) {
+            closeModalCalendario();
+            selectDay(dayNumber);
+        }
+
+        function renderCalendarScreen() {
+            const container = document.getElementById('calendar-fixtures');
+            if (!container) return;
+            container.innerHTML = realFixtures.map(match => `
+                <article class="bg-[#161b17] p-3 rounded-xl border border-gray-800 space-y-2 ${appData.predictions[match.id] ? 'predicted-card' : ''}">
+                    <div class="flex items-center justify-between text-[10px] text-gray-400">
+                        <span>${match.group}</span>
+                        <span class="text-[#2eff2e] font-semibold">${match.dateLabel} • ${match.time}</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <img src="${match.homeFlag}" class="w-10 h-6 rounded-md border border-gray-700">
+                            <span class="text-sm text-white font-semibold truncate">${match.home}</span>
+                        </div>
+                        <span class="text-xs text-gray-400">VS</span>
+                        <div class="flex items-center gap-2 min-w-0 justify-end">
+                            <span class="text-sm text-white font-semibold truncate">${match.away}</span>
+                            <img src="${match.awayFlag}" class="w-10 h-6 rounded-md border border-gray-700">
+                        </div>
+                    </div>
+                    <div class="text-[10px] text-gray-400">${match.venue}</div>
+                    <div class="bg-[#0f1310] p-2 rounded-xl border border-gray-800 flex flex-wrap gap-1.5">
+                        <span class="text-[10px] text-gray-300">Pronóstico:</span>
+                        <span class="text-[10px] text-[#2eff2e] font-semibold">${getPredictionLabel(match.id)}</span>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        // 3. SECCIÓN FINANCIERA (METAS GLOBALES)
+        function openModalMeta() {
+            document.getElementById('input-meta-name').value = '';
+            document.getElementById('input-meta-invested').value = '';
+            document.getElementById('input-meta-profit').value = '';
+            document.getElementById('input-meta-target').value = '';
+            document.getElementById('modal-meta').classList.remove('hidden');
+        }
+        
+        function closeModalMeta() { document.getElementById('modal-meta').classList.add('hidden'); }
+
+        function saveMetaFinance() {
+            const name = document.getElementById('input-meta-name').value || 'Inversión';
+            const invested = parseFloat(document.getElementById('input-meta-invested').value) || 0;
+            const profit = parseFloat(document.getElementById('input-meta-profit').value) || 0;
+            const target = parseFloat(document.getElementById('input-meta-target').value) || 100;
+
+            appData.metas.push({ id: Date.now(), name, invested, profit, target });
+            localStorage.setItem('quiniela_storage_v2', JSON.stringify(appData));
+            
+            closeModalMeta();
+            updateFinanceDashboard();
+        }
+
+        function removeMeta(id) {
+            appData.metas = appData.metas.filter(m => m.id !== id);
+            localStorage.setItem('quiniela_storage_v2', JSON.stringify(appData));
+            updateFinanceDashboard();
+        }
+
+        function updateFinanceDashboard() {
+            let totalInvested = 0;
+            let totalProfit = 0;
+            let totalTarget = 0;
+
+            const container = document.getElementById('metas-list-container');
+            container.innerHTML = '';
+
+            appData.metas.forEach(m => {
+                totalInvested += m.invested;
+                totalProfit += m.profit;
+                totalTarget += m.target;
+
+                const currentBalance = m.invested + m.profit;
+                const percentage = Math.min(Math.round((currentBalance / m.target) * 100), 100);
+                const profitColor = m.profit >= 0 ? 'text-[#2eff2e]' : 'text-red-500';
+                const profitSign = m.profit >= 0 ? '+$' : '-$';
+
+                container.innerHTML += `
+                    <div class="bg-[#161b17] p-4 rounded-xl border border-gray-800 space-y-3">
+                        <div class="flex justify-between items-start">
+                            <h4 class="font-bold text-white text-sm">${m.name}</h4>
+                            <button onclick="removeMeta(${m.id})" class="text-gray-500 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-xs">
+                            <div>
+                                <span class="text-[10px] text-gray-500 block">Invertido</span>
+                                <span class="font-semibold text-gray-300">$${m.invested.toFixed(2)}</span>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-gray-500 block">Resultado</span>
+                                <span class="font-semibold ${profitColor}">${profitSign}${Math.abs(m.profit).toFixed(2)}</span>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-gray-500 block">Saldo Actual</span>
+                                <span class="font-bold text-white">$${currentBalance.toFixed(2)}</span>
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-[11px]">
+                                <span class="text-gray-400">Progreso</span>
+                                <span class="text-[#2eff2e] font-medium">$${Math.round(currentBalance)} / $${m.target} (${percentage}%)</span>
+                            </div>
+                            <div class="w-full bg-[#0f1310] h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-[#2eff2e] h-1.5 rounded-full" style="width: ${percentage}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Actualizar Macros del Dashboard Superior
+            const globalBalance = totalInvested + totalProfit;
+            const globalPercentage = totalTarget > 0 ? Math.min(Math.round((globalBalance / totalTarget) * 100), 100) : 0;
+
+            document.getElementById('main-balance-text').innerText = `$${globalBalance.toFixed(2)}`;
+            document.getElementById('main-invested-text').innerText = `$${totalInvested.toFixed(2)}`;
+            
+            const profitLabel = document.getElementById('main-profit-text');
+            profitLabel.innerText = (totalProfit >= 0 ? '+$' : '-$') + Math.abs(totalProfit).toFixed(2);
+            profitLabel.className = `text-sm font-bold ${totalProfit >= 0 ? 'text-[#2eff2e]' : 'text-red-500'}`;
+
+            document.getElementById('main-progress-label').innerText = `${globalPercentage}% de $${totalTarget}`;
+            document.getElementById('main-progress-bar').style.width = `${globalPercentage}%`;
+
+            lucide.createIcons();
+        }
+
+        // 4. CAMBIO DE PANTALLA PRINCIPAL
+        function changeTab(screenId) {
+            document.querySelectorAll('.screen-view').forEach(s => s.classList.add('hidden'));
+            document.getElementById('screen-' + screenId).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-[#2eff2e]', 'font-bold');
+                btn.classList.add('text-gray-500');
+            });
+
+            const currentNav = document.getElementById('nav-' + screenId);
+            currentNav.classList.remove('text-gray-500');
+            currentNav.classList.add('text-[#2eff2e]', 'font-bold');
+        }
+    </script>
+</body>
+</html>
